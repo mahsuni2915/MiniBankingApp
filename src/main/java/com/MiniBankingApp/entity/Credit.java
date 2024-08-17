@@ -7,19 +7,27 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Credit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
+
+    @Column(name = "installment_count", nullable = false)
     private int installmentCount;
 
+    @ManyToOne
+    @JoinColumn(name = "banking_user_id", nullable = false)
+    private BankingUser bankingUser;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Credit> credits;
+    @OneToMany(mappedBy = "credit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Installment> installments;
 }
