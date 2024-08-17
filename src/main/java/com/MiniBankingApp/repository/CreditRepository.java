@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CreditRepository extends JpaRepository<Credit, Long> {
@@ -17,5 +18,13 @@ public interface CreditRepository extends JpaRepository<Credit, Long> {
     List<Credit> getCreditsByUserId(@Param("userId") Long userId);
 
     @Query("SELECT c FROM Credit c WHERE c.bankingUser.id = :userId")
-    Page<Credit> getCreditsByUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<Credit> getCreditsByUserIdPageble(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT c FROM Credit c WHERE c.bankingUser.id = :userId AND " +
+            "( :status IS NULL OR c.status = :status ) AND " +
+            "( :date IS NULL OR c.createdAt >= :date )")
+    Page<Credit> findCreditsByUserIdAndFilters(@Param("userId") Long userId,
+                                               @Param("status") Integer status,
+                                               @Param("date") LocalDateTime date,
+                                               Pageable pageable);
 }

@@ -2,9 +2,11 @@ package com.MiniBankingApp.controller;
 
 import com.MiniBankingApp.entity.Credit;
 import com.MiniBankingApp.service.CreditService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -22,5 +24,15 @@ public class CreditController {
         return creditService.createCredit(userId, amount, installmentCount);
     }
 
+    @GetMapping
+    public Page<Credit> getCreditsByUserIdAndFilters(
+            @RequestParam Long userId,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) LocalDateTime date,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return creditService.getCreditsByUserIdAndFilters(userId, status, date, page, size);
+    }
 
 }
