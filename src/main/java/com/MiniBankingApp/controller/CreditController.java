@@ -1,8 +1,11 @@
 package com.MiniBankingApp.controller;
 
 import com.MiniBankingApp.entity.Credit;
+import com.MiniBankingApp.entity.request.CreditRequest;
 import com.MiniBankingApp.service.CreditService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -10,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/credits")
+@RequestMapping("/api/credits")
 public class CreditController {
 
     private final CreditService creditService;
@@ -19,9 +22,11 @@ public class CreditController {
         this.creditService = creditService;
     }
 
+
     @PostMapping
-    public Credit createCredit(@RequestParam Long userId, @RequestParam BigDecimal amount, @RequestParam int installmentCount) {
-        return creditService.createCredit(userId, amount, installmentCount);
+    public ResponseEntity<Credit> createCredit(@RequestBody @Valid CreditRequest creditRequest) {
+        Credit createdCredit = creditService.createCredit(creditRequest);
+        return ResponseEntity.ok(createdCredit);
     }
 
     @GetMapping

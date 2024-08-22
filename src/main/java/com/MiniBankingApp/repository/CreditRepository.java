@@ -17,12 +17,11 @@ public interface CreditRepository extends JpaRepository<Credit, Long> {
     @Query("SELECT c FROM Credit c WHERE c.bankingUser.id = :userId")
     List<Credit> getCreditsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT c FROM Credit c WHERE c.bankingUser.id = :userId")
-    Page<Credit> getCreditsByUserIdPageble(@Param("userId") Long userId, Pageable pageable);
-
-    @Query("SELECT c FROM Credit c WHERE c.bankingUser.id = :userId AND " +
-            "( :status IS NULL OR c.status = :status ) AND " +
-            "( :date IS NULL OR c.createdAt >= :date )")
+    @Query("SELECT DISTINCT c FROM Credit c " +
+            "LEFT JOIN FETCH c.installments " +
+            "WHERE c.bankingUser.id = :userId " +
+            "AND (:status IS NULL OR c.status = :status) " +
+            "AND (:date IS NULL OR c.createdAt >= :date)")
     Page<Credit> findCreditsByUserIdAndFilters(@Param("userId") Long userId,
                                                @Param("status") Integer status,
                                                @Param("date") LocalDateTime date,

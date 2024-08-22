@@ -1,20 +1,18 @@
 package com.MiniBankingApp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Credit {
 
     @Id
@@ -35,29 +33,14 @@ public class Credit {
     private LocalDate createdAt;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "banking_user_id", nullable = false)
+    @JsonBackReference
     private BankingUser bankingUser;
 
-    @OneToMany(mappedBy = "credit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "credit", cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Installment> installments;
 
     @Column(nullable = false)
     private BigDecimal interestRate;
-
-    @Column(nullable = false)
-    private BigDecimal lateFee;
-
-    @Column(nullable = false)
-    private boolean late;
-
-    public void calculateLateFee(LocalDate currentDate) {
-        if (currentDate.isAfter(createdAt) && !late) {
-            long daysLate = java.time.temporal.ChronoUnit.DAYS.between(createdAt, currentDate);
-            BigDecimal dailyInterest = interestRate.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
-            BigDecimal lateFeePerDay = dailyInterest.multiply(amount).divide(BigDecimal.valueOf(360), 10, RoundingMode.HALF_UP);
-            this.lateFee = lateFeePerDay.multiply(BigDecimal.valueOf(daysLate));
-            this.late = true;
-        }
-    }
 }

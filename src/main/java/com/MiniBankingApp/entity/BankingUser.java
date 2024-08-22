@@ -1,19 +1,21 @@
 package com.MiniBankingApp.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
-@Data
+
 @Entity
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class BankingUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
@@ -27,7 +29,8 @@ public class BankingUser {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "bankingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "bankingUser", cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Credit> credits;
 
     @PrePersist

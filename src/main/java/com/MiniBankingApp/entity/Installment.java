@@ -1,17 +1,19 @@
 package com.MiniBankingApp.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
-@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Installment {
 
     @Id
@@ -30,21 +32,17 @@ public class Installment {
     @Column
     private LocalDate paymentDate;
 
-    @ManyToOne
+    @OneToMany(mappedBy = "installment", cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Payment> payments;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     @JoinColumn(name = "credit_id", nullable = false)
     private Credit credit;
 
     @Column(nullable = false)
     private BigDecimal balance;
 
-    public void applyPayment(BigDecimal payment) {
-        if (balance.compareTo(payment) < 0) {
-            throw new IllegalArgumentException("Payment exceeds the remaining balance.");
-        }
-        balance = balance.subtract(payment);
-        if (balance.compareTo(BigDecimal.ZERO) == 0) {
-            paid = true;
-            paymentDate = LocalDate.now();
-        }
-    }
+    @Column
+    private BigDecimal lateFee = BigDecimal.ZERO;
 }

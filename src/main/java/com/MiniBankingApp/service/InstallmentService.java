@@ -1,28 +1,23 @@
 package com.MiniBankingApp.service;
-
 import com.MiniBankingApp.entity.Installment;
 import com.MiniBankingApp.repository.InstallmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Optional;
+
 
 @Service
 public class InstallmentService {
+    @Autowired
     private InstallmentRepository installmentRepository;
 
-
-    @Transactional
-    public void payInstallment(Long installmentId, BigDecimal paymentAmount) {
-        Installment installment = installmentRepository.findById(installmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Installment not found with ID: " + installmentId));
-
-        if (installment.isPaid()) {
-            throw new IllegalStateException("Installment is already fully paid.");
+    public Installment getInstallmentById(Long id) {
+        Optional<Installment> installmentOptional = installmentRepository.findById(id);
+        if (installmentOptional.isPresent()) {
+            return installmentOptional.get();
+        } else {
+            throw new RuntimeException("Installment not found with id: " + id);
         }
-
-        installment.applyPayment(paymentAmount);
-        installmentRepository.save(installment);
     }
 }
